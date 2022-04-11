@@ -10,15 +10,21 @@ import AVFoundation
 import RxSwift
 
 class AVCaptureDevicePermission: PermissionGrant {
-    let type: AVMediaType
+    var isGranted: Bool {
+        get {
+            return AVCaptureDevice.authorizationStatus(for: self.type ?? .audio) ==  .authorized
+        }
+    }
 
-    init(type: AVMediaType) {
+    let type: AVMediaType?
+
+    init(type: AVMediaType?) {
         self.type = type
     }
 
     func requestPermission() -> Observable<PermissionResult> {
         return Observable.create { observer in
-            AVCaptureDevice.requestAccess(for: self.type) { granted in
+            AVCaptureDevice.requestAccess(for: self.type ?? .audio) { granted in
                 if granted {
                     observer.onNext(PermissionResult(permission: .AVCaptureDevice(type: self.type), result: .authorized))
                     observer.onCompleted()

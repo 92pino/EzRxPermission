@@ -21,6 +21,8 @@ class ViewController: UIViewController {
             notificationOption = NotificationOption(option: [.alert, .badge, .sound])
         }
 
+        print("IsGrant : ", PermissionType.UNUserNotificationCenter().isGranted)
+
         EzRxPermission.requestPermission(permissions: [.UNUserNotificationCenter(options: notificationOption), .CNContactStore])
             .subscribe(
                 onNext: { permission in
@@ -35,7 +37,7 @@ class ViewController: UIViewController {
 
         PermissionType.CLLocationManager.request
             .subscribe(
-                onNext: { [weak self] permission in
+                onNext: { permission in
                     switch permission.result {
                     case .authorized:
                         print("Permission Authorized")

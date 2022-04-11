@@ -10,6 +10,14 @@ import RxSwift
 import CoreLocation
 
 class CLLocationManagerPermission: NSObject, PermissionGrant {
+    var isGranted: Bool {
+        if #available(iOS 14.0, *) {
+            return CLLocationManager().authorizationStatus == .authorizedAlways || CLLocationManager().authorizationStatus == .authorizedWhenInUse
+        } else {
+            return CLLocationManager.authorizationStatus() == .authorizedAlways || CLLocationManager.authorizationStatus() == .authorizedWhenInUse
+        }
+    }
+
     let locationManager = CLLocationManager()
 
     let permissionPublishSubject = PublishSubject<PermissionResult>()
@@ -49,6 +57,8 @@ extension CLLocationManagerPermission: CLLocationManagerDelegate {
                 return
             case .restricted, .denied:
                 permissionStatus = .denied
+            @unknown default:
+                permissionStatus = .denied
             }
             permissionPublishSubject.onNext(PermissionResult(permission: .CLLocationManager, result: permissionStatus))
             permissionPublishSubject.onCompleted()
@@ -63,6 +73,8 @@ extension CLLocationManagerPermission: CLLocationManagerDelegate {
         case .notDetermined:
             return
         case .restricted, .denied:
+            permissionStatus = .denied
+        @unknown default:
             permissionStatus = .denied
         }
         permissionPublishSubject.onNext(PermissionResult(permission: .CLLocationManager, result: permissionStatus))
